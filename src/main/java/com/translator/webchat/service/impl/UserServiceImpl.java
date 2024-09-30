@@ -12,7 +12,6 @@ import com.translator.webchat.repositories.SessionRepository;
 import com.translator.webchat.repositories.SessionUsersRepository;
 import com.translator.webchat.repositories.UserRepository;
 import com.translator.webchat.service.UserService;
-import com.translator.webchat.util.GenerateOTP;
 import com.translator.webchat.util.HashedPassword;
 import com.translator.webchat.util.PasswordUtil;
 import com.translator.webchat.util.UUID;
@@ -39,7 +38,6 @@ public class UserServiceImpl implements UserService {
     private final SessionRepository sessionRepository;
     private final SessionUsersRepository sessionUsersRepository;
     private final UserAuthProvider userAuthProvider;
-    private final GenerateOTP generateOTP;
 
     /**
      * {@inheritDoc}
@@ -195,31 +193,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return idSU.get().toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String verifyOtpAndChangePassword(VerifyOTPAndChangePasswordRequestDTO verifyOTPAndChangePasswordRequestDTO)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String email = verifyOTPAndChangePasswordRequestDTO.getEmail();
-        String otp = verifyOTPAndChangePasswordRequestDTO.getOtp();
-        String newPassword = verifyOTPAndChangePasswordRequestDTO.getNewPassword();
-
-        if (newPassword.length() < 8) {
-            throw new ResourceNotFoundException(HttpStatus.BAD_REQUEST.value(),
-                    "New password must be at least 8 characters", "1");
-        } else if (!generateOTP.isOtpValid(email, otp)) {
-            throw new ResourceNotFoundException(HttpStatus.BAD_REQUEST.value(),
-                    "OTP or Email is incorrect", "2");
-        }
-        User user = userRepository.findByEmail(email).get();
-        HashedPassword hashedPassword = PasswordUtil.hashAndSaltPassword(newPassword);
-        user.setPassword(hashedPassword.getHashedPassword());
-        user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-        userRepository.save(user);
-        return "true";
     }
 
     /**

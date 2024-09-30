@@ -4,7 +4,6 @@ import com.translator.webchat.dto.request.*;
 import com.translator.webchat.dto.response.ResponseData;
 import com.translator.webchat.dto.response.TokenRefreshResponse;
 import com.translator.webchat.dto.response.UserAuthResponse;
-import com.translator.webchat.service.impl.OtpServiceImpl;
 import com.translator.webchat.service.impl.RefreshTokenServiceImpl;
 import com.translator.webchat.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +36,6 @@ public class AuthController {
 
     private final UserServiceImpl userService;
     private final RefreshTokenServiceImpl refreshTokenService;
-    private final OtpServiceImpl otpService;
 
     @Operation(summary = "Add a new user", description = "Add a new user to the system",  responses = {
             @ApiResponse(responseCode = "200", description = "User created",
@@ -111,41 +109,5 @@ public class AuthController {
 
         return new ResponseData<>(HttpStatus.OK.value(), "Get refresh token successfully.",
                 new TokenRefreshResponse(newAccessToken, refreshToken));
-    }
-
-    @Operation(summary = "Send OTP", description = "Send OTP to user",  responses = {
-            @ApiResponse(responseCode = "200", description = "OTP sent",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(name = "ex name", summary = "ex summary",
-                                    value = "{\"status\": 200, \"message\": \"OTP sent\", \"data\": \"success\"}"
-                            )))})
-    @PostMapping("/sendotp")
-    public ResponseEntity<ResponseData<String>> sendOtp(@Valid @RequestBody SendOtpRequestDTO sendOtpRequestDTO){
-        // Logic to send OTP
-        String otp = otpService.generateOtp(sendOtpRequestDTO);
-        ResponseData<String> responseData = new ResponseData<>(HttpStatus.OK.value(), "OTP sent", otp);
-        return ResponseEntity.ok(responseData);
-    }
-
-    @Operation (summary = "Verify OTP and change password", description = "Verify OTP and change password",  responses = {
-            @ApiResponse(responseCode = "200", description = "Change password for forgotten password successfully",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(name = "ex name", summary = "ex summary",
-                                    value = "{\"status\": 200, \"message\": \"Change password for forgotten password successfully\", \"data\": \"true\"}"
-                            ))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(name = "TBD", summary = "TBD",
-                                    value = "{status: 400, message: \"Password must be at least 8 characters\", data: \"1\"}<br />" +
-                                            "{status: 400, message: \"New password must be at least 8 characters\", data: \"2\"}<br />" +
-                                            "{status: 400, message: \"Old password is incorrect\", data: \"3\"}<br />"
-                            )))
-    })
-    @PostMapping("/verifyotpandchangepassword")
-    public ResponseEntity<ResponseData<String>> verifyOtp(@Valid @RequestBody VerifyOTPAndChangePasswordRequestDTO verifyOTPAndChangePasswordRequestDTO) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        // Logic to send OTP
-        String result = userService.verifyOtpAndChangePassword(verifyOTPAndChangePasswordRequestDTO);
-        ResponseData<String> responseData = new ResponseData<>(HttpStatus.OK.value(), "Change password for forgotten password successfully ", result);
-        return ResponseEntity.ok(responseData);
     }
 }

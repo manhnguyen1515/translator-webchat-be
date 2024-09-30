@@ -30,7 +30,7 @@ public class Member {
     private Long id;
 
     @Column(name = "is_admin", columnDefinition = "boolean default false")
-    private boolean isAdmin = false;
+    private final boolean isAdmin = false;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")

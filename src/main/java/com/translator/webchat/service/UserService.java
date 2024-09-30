@@ -46,12 +46,6 @@ public interface UserService {
      */
     String createSession(CreateSessionDTO createSessionDTO) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
-    /**
-     * Service for handle user login
-     * @param verifyOTPAndChangePasswordRequestDTO
-     * @return  String
-     */
-    String verifyOtpAndChangePassword (VerifyOTPAndChangePasswordRequestDTO verifyOTPAndChangePasswordRequestDTO) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
     /**
      * Service for get all users

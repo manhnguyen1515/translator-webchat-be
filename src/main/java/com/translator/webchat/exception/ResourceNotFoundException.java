@@ -1,8 +1,10 @@
 package com.translator.webchat.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ResourceNotFoundException extends RuntimeException{
 
     private int status;
