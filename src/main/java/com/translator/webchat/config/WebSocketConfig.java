@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${webchat.frontend.path}")
+    @Value("${app.frontend.url}")
     private String frontendUrl;
 
     @Override
