@@ -38,9 +38,5 @@ public class ChatController {
                 "/topic/user/" + chatMessage.getRecipient(),
                 chatMessageResponse
         );
-
-//        if (!ObjectUtils.isEmpty(message) && !ObjectUtils.isEmpty(message.getSession())) {
-//            messageService.updateMessageToRedis(chatMessageResponse, message.getSession());
-//        }
     }
 }

@@ -16,13 +16,6 @@ public interface MessageService {
     Message saveChatMessage(ChatMessageRequestDto chatMessage);
 
     /**
-     * Update chat message to redis
-     * @param chatMessageResponse
-     * @param session
-     */
-    void updateMessageToRedis(ChatMessageResponseDto chatMessageResponse, Session session);
-
-    /**
      * Service for get first 15 messages
      * @param sessionId
      * @return
