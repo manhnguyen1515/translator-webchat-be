@@ -28,9 +28,9 @@ public class ChatController {
                 .id(ObjectUtils.isEmpty(message) ? String.valueOf(new Random().nextInt()) : message.getId().toString())
                 .sender(chatMessage.getSender())
                 .recipient(chatMessage.getRecipient())
-                .content(chatMessage.getContent())
+                .contentEn(chatMessage.getContent())
                 .contentVi(ObjectUtils.isEmpty(message) ? chatMessage.getContent() : message.getContentVi())
-                .contentKo(ObjectUtils.isEmpty(message) ? chatMessage.getContent() : message.getContentKo())
+                .contentJa(ObjectUtils.isEmpty(message) ? chatMessage.getContent() : message.getContentJa())
                 .createdAt(ObjectUtils.isEmpty(message) ? null : message.getCreatedAt())
                 .updatedAt(ObjectUtils.isEmpty(message) ? null : message.getUpdatedAt())
                 .build();
@@ -38,9 +38,5 @@ public class ChatController {
                 "/topic/user/" + chatMessage.getRecipient(),
                 chatMessageResponse
         );
-
-        if (!ObjectUtils.isEmpty(message) && !ObjectUtils.isEmpty(message.getSession())) {
-            messageService.updateMessageToRedis(chatMessageResponse, message.getSession());
-        }
     }
 }

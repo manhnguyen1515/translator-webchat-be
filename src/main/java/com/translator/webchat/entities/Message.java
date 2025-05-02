@@ -28,13 +28,14 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String content;
+    @Column(name = "content_en")
+    private String contentEn;
 
     @Column(name = "content_vi")
     private String contentVi;
 
-    @Column(name = "content_ko")
-    private String contentKo;
+    @Column(name = "content_ja")
+    private String contentJa;
 
     private LocalDateTime createdAt;
 

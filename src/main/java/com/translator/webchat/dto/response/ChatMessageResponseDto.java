@@ -14,9 +14,9 @@ public class ChatMessageResponseDto implements Serializable {
     private String id;
     private String sender;
     private String recipient;
-    private String content;
+    private String contentEn;
     private String contentVi;
-    private String contentKo;
+    private String contentJa;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

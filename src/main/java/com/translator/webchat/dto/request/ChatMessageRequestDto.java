@@ -10,5 +10,6 @@ public class ChatMessageRequestDto {
     private String sender;
     private String recipient;
     private String content;
+    private String language;
     private String token;
 }
