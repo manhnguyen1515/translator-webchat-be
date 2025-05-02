@@ -13,14 +13,12 @@ import com.translator.webchat.repositories.UserRepository;
 import com.translator.webchat.service.MessageService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.translator.webchat.service.RedisService;
 import com.translator.webchat.service.TranslatorApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -36,7 +34,6 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
-    private final RedisService redisService;
     private final TranslatorApiService translatorApiService;
 
     /**
@@ -71,25 +68,6 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    @Override
-    public void updateMessageToRedis(ChatMessageResponseDto chatMessageResponse, Session session) {
-        Message lastMessage = this.getLastElementOfLastFifteenMessage(session);
-
-        if (!ObjectUtils.isEmpty(lastMessage)) {
-            redisService.delete(lastMessage.getId().toString(), session.getId().toString());
-        }
-        redisService.saveMessage(chatMessageResponse, session.getId().toString());
-    }
-
-    private Message getLastElementOfLastFifteenMessage(Session session) {
-        Pageable pageable = PageRequest.of(0, 15);
-        List<Message> lastFifteenMessages = messageRepository.findBySessionOrderByIdDesc(session, pageable);
-        if (lastFifteenMessages.isEmpty()) {
-            return null;
-        }
-        return lastFifteenMessages.get(lastFifteenMessages.size() - 1);
-    }
-
     /**
      * Parse message from response of gemini api response
      * @param json JSON string
@@ -116,31 +94,23 @@ public class MessageServiceImpl implements MessageService {
     }
 
     public List<ChatMessageResponseDto> getFirstFifteenMessages(String sessionId) {
-        // Attempt to retrieve messages from Redis
-//        List<ChatMessageResponseDto> messages = redisService.findFirstFifteenMessages(sessionId);
-        List<ChatMessageResponseDto> messages = null;
+        Pageable pageable = PageRequest.of(0, 15, Sort.by("id").descending());
+        List<Message> messageEntities = messageRepository.findBySessionId(Long.parseLong(sessionId), pageable);
 
-        if (ObjectUtils.isEmpty(messages)) {
-            // If Redis doesn't have the messages, query the database
-            Pageable pageable = PageRequest.of(0, 15, Sort.by("id").descending());
-            List<Message> messageEntities = messageRepository.findBySessionId(Long.parseLong(sessionId), pageable);
-
-            // Convert entities to DTOs (assuming a method exists for this conversion)
-            return messageEntities.stream().map(message -> {
-                User sender = message.getUser();
-                Optional<User> recipientOpt = message.getSession().getUsers().stream().filter(user -> !user.getId().equals(sender.getId())).findFirst();
-                return ChatMessageResponseDto.builder()
-                        .id(message.getId().toString())
-                        .sender(sender.getUsername())
-                        .recipient(recipientOpt.map(User::getUsername).orElse(""))
-                        .contentEn(message.getContentEn())
-                        .contentVi(message.getContentVi())
-                        .contentJa(message.getContentJa())
-                        .updatedAt(message.getUpdatedAt())
-                        .createdAt(message.getCreatedAt()).build();
-                    }
-            ).collect(Collectors.toList());
-        }
-        return messages;
+        // Convert entities to DTOs (assuming a method exists for this conversion)
+        return messageEntities.stream().map(message -> {
+                    User sender = message.getUser();
+                    Optional<User> recipientOpt = message.getSession().getUsers().stream().filter(user -> !user.getId().equals(sender.getId())).findFirst();
+                    return ChatMessageResponseDto.builder()
+                            .id(message.getId().toString())
+                            .sender(sender.getUsername())
+                            .recipient(recipientOpt.map(User::getUsername).orElse(""))
+                            .contentEn(message.getContentEn())
+                            .contentVi(message.getContentVi())
+                            .contentJa(message.getContentJa())
+                            .updatedAt(message.getUpdatedAt())
+                            .createdAt(message.getCreatedAt()).build();
+                }
+        ).collect(Collectors.toList());
     }
 }
