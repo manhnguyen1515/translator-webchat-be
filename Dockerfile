@@ -1,4 +1,14 @@
+#
+# Build stage
+#
+FROM azul/zulu-openjdk:17-latest AS build
+COPY . .
+RUN gradle clean build
+
+#
+# Package stage
+#
 FROM azul/zulu-openjdk:17-latest
-VOLUME /tmp
-COPY build/libs/*.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+COPY --from=build /home/app/target/Falcon-0.0.1.jar /usr/local/lib/falcon.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/usr/local/lib/falcon.jar"]
