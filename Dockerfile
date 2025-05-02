@@ -1,14 +1,15 @@
-#
-# Build stage
-#
-FROM azul/zulu-openjdk:17-latest AS build
-COPY . .
-RUN ./gradlew bootJar --no-deamon
+FROM ubuntu:latest AS build
 
-#
-# Package stage
-#
-FROM azul/zulu-openjdk:17-latest
-COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar demo.jar
+RUN apt-get update
+RUN apt-get install openjdk-17-jdk -y
+COPY . .
+
+RUN ./gradlew bootJar --no-daemon
+
+FROM openjdk:17-jdk-slim
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","demo.jar"]
+
+COPY --from=build /build/libs/demo-1.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
